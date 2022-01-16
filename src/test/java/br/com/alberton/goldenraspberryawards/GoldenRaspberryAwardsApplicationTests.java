@@ -24,7 +24,7 @@ class GoldenRaspberryAwardsApplicationTests {
     private TestRestTemplate testRestTemplate;
 
     @Test
-    public void teste() {
+    public void testAwardRange() {
 
         ResponseEntity<AwardRange> response = this.testRestTemplate.getForEntity("/awardrange", AwardRange.class);
 
