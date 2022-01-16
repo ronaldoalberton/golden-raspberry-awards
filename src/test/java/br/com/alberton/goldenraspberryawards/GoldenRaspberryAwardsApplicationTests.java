@@ -2,6 +2,7 @@ package br.com.alberton.goldenraspberryawards;
 
 import static java.util.Objects.nonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -43,6 +44,10 @@ class GoldenRaspberryAwardsApplicationTests {
                 assertEquals(producerAward.getPreviousWin(), 1990);
                 assertEquals(producerAward.getFollowingWin(), 1991);
 
+            } else {
+
+                fail("Não encontrado valores para o campo AwardRange.min");
+
             }
 
             if (nonNull(awardRange.getMax()) && !awardRange.getMax().isEmpty()) {
@@ -54,7 +59,15 @@ class GoldenRaspberryAwardsApplicationTests {
                 assertEquals(producerAward.getPreviousWin(), 2002);
                 assertEquals(producerAward.getFollowingWin(), 2015);
 
+            } else {
+
+                fail("Não encontrado valores para o campo AwardRange.max");
+
             }
+
+        } else {
+
+            fail("Não encontrado o objeto AwardRange no retorno da API");
 
         }
 
