@@ -44,8 +44,7 @@ public class AwardRangeServiceImpl implements AwardRangeService {
         final List<ProducerAward> awardList = new ArrayList<>();
 
         for (MovieProducer movieProducer : movieProducerList) {
-
-            //Caso nao esteja na lista cria um novo produtor
+            
             ProducerAward producerAward = new ProducerAward();
             producerAward.setId(movieProducer.getProducer().getId());
             producerAward.setProducer(movieProducer.getProducer().getName());
