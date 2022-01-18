@@ -7,7 +7,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -23,32 +22,28 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "studio")
-public class Studio implements IDomain {
+@Table(name = "movie_producer")
+public class MovieProducer implements IDomain {
 
     @Id
+    @Column(name = "movie_producer_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="studio_id")
-    private Long studioId;
-
-    private String name;
+    private Long movieProducerId;
 
     @OneToOne(cascade= CascadeType.ALL)
-    @JoinTable(name="movie_studio",
-            joinColumns={@JoinColumn(name="studio_id", referencedColumnName="studio_id")},
-            inverseJoinColumns={@JoinColumn(name="movie_id", referencedColumnName="movie_id")})
+    @JoinColumn(name = "producer_id")
+    private Producer producer;
+
+    @OneToOne(cascade= CascadeType.ALL)
+    @JoinColumn(name = "movie_id")
     private Movie movie;
 
-    public Studio() {
+    public MovieProducer() {
 
-    }
-
-    public Studio(String name) {
-        this.name = name;
     }
 
     @Override
     public Long getId() {
-        return this.studioId;
+        return this.movieProducerId;
     }
 }

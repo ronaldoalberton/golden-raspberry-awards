@@ -1,6 +1,7 @@
 package br.com.alberton.goldenraspberryawards.api.domain;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,7 +15,6 @@ import br.com.alberton.goldenraspberryawards.api.commons.IDomain;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * @author Ronaldo Alberton
@@ -28,7 +28,8 @@ public class Producer implements IDomain {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long producer_id;
+    @Column(name="producer_id")
+    private Long producerId;
 
     private String name;
 
@@ -48,7 +49,7 @@ public class Producer implements IDomain {
 
     @Override
     public Long getId() {
-        return this.producer_id;
+        return this.producerId;
     }
 
     @Override

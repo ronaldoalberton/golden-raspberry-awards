@@ -11,11 +11,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.alberton.goldenraspberryawards.api.domain.Movie;
-import br.com.alberton.goldenraspberryawards.api.domain.Producer;
+import br.com.alberton.goldenraspberryawards.api.domain.MovieProducer;
 import br.com.alberton.goldenraspberryawards.api.domain.ProducerAward;
 import br.com.alberton.goldenraspberryawards.api.domain.AwardRange;
-import br.com.alberton.goldenraspberryawards.api.service.MovieService;
+import br.com.alberton.goldenraspberryawards.api.service.MovieProducerService;
 import br.com.alberton.goldenraspberryawards.api.service.AwardRangeService;
 
 /**
@@ -26,67 +25,62 @@ import br.com.alberton.goldenraspberryawards.api.service.AwardRangeService;
 public class AwardRangeServiceImpl implements AwardRangeService {
 
     @Autowired
-    private MovieService movieService;
+    private MovieProducerService movieProducerService;
 
     @Autowired
-    public AwardRangeServiceImpl(MovieService movieService) {
-        this.movieService = movieService;
+    public AwardRangeServiceImpl(MovieProducerService movieProducerService) {
+        this.movieProducerService = movieProducerService;
     }
 
     @Override
     public Optional<AwardRange> findProducerClassification() {
 
-        List<Movie> movies = movieService.findAll().stream().filter(Movie::getWinner).collect(Collectors.toList());
+        List<MovieProducer> movieProducerList =  movieProducerService.findAll().stream()
+                .filter(m -> m.getMovie().getWinner())
+                .sorted(Comparator.comparing(m -> m.getMovie().getYear()))
+                .collect(Collectors.toList());
 
         //Cria a lista dos produtores
         final List<ProducerAward> awardList = new ArrayList<>();
 
-        for (Movie movie : movies) {
+        for (MovieProducer movieProducer : movieProducerList) {
 
-            for (Producer producer : movie.getProducers()) {
+            //Caso nao esteja na lista cria um novo produtor
+            ProducerAward producerAward = new ProducerAward();
+            producerAward.setId(movieProducer.getProducer().getId());
+            producerAward.setProducer(movieProducer.getProducer().getName());
+            producerAward.setPreviousWin(movieProducer.getMovie().getYear());
+            producerAward.setFollowingWin(movieProducer.getMovie().getYear());
 
-                //Verifica se o produtor que esta no loop ja foi adicionado na lista;
-                Optional<ProducerAward> optional = awardList.stream().filter(a -> a.getId().equals(producer.getId())).findFirst();
+            //Recupera o maior ano de vitória do produdor ja adicionado na lista.
+            Optional<ProducerAward> optional = awardList.stream()
+                    .filter(a -> a.getId().equals(movieProducer.getProducer().getId()))
+                    .max(Comparator.comparing(ProducerAward::getFollowingWin));
 
-                ProducerAward producerAward;
+            //Caso encontre atribui o ano encontrado como anterior
+            //e o ano do loop como proximo, visto que a lista está ordenada por ano.
+            if (optional.isPresent()) {
 
-                //Caso nao esteja na lista cria um novo produtor
-                if (optional.isEmpty()) {
-
-                    producerAward = new ProducerAward();
-                    producerAward.setId(producer.getId());
-                    producerAward.setProducer(producer.getName());
-                    producerAward.setPreviousWin(movie.getYear());
-                    producerAward.setFollowingWin(movie.getYear());
-
-                    awardList.add(producerAward);
-
-                } else {
-
-                    //Caso ja esteja recupera da lista
-                    producerAward = optional.get();
-
-                    //Faz a validacao se o ano do filme que está no loop menos o proximo ano é um um intervalo
-                    //maior do que o que ja esta armazenado, caso seja atribui os valores.
-                    if ((movie.getYear() - producerAward.getFollowingWin()) >= producerAward.getInterval()) {
-
-                        producerAward.setPreviousWin(producerAward.getFollowingWin());
-                        producerAward.setFollowingWin(movie.getYear());
-
-                    }
-
-                }
+                ProducerAward producerAwardFind = optional.get();
+                producerAward.setPreviousWin(producerAwardFind.getFollowingWin());
+                producerAward.setFollowingWin(movieProducer.getMovie().getYear());
 
             }
+            awardList.add(producerAward);
 
         }
 
         //Busca na lista qual tem o menor intervalo
-        int minInterval = awardList.stream().filter(p -> p.getInterval() > 0).min(Comparator.comparing(ProducerAward::getInterval)).orElse(new ProducerAward())
-                .getInterval();
+        int minInterval = awardList.stream()
+                .filter(p -> p.getInterval() > 0)
+                .min(Comparator.comparing(ProducerAward::getInterval))
+                .orElse(new ProducerAward()).getInterval();
 
         //Busca na lista qual tem o maior intervalo
-        int maxInterval = awardList.stream().filter(p -> p.getInterval() > 0).max(Comparator.comparing(ProducerAward::getInterval)).orElse(new ProducerAward())
+        int maxInterval = awardList.stream()
+                .filter(p -> p.getInterval() > 0)
+                .max(Comparator.comparing(ProducerAward::getInterval))
+                .orElse(new ProducerAward())
                 .getInterval();
 
         AwardRange awardRange = new AwardRange();

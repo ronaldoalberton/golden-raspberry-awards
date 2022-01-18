@@ -2,6 +2,7 @@ package br.com.alberton.goldenraspberryawards.api.domain;
 
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -31,7 +32,8 @@ public class Movie implements IDomain {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long movie_id;
+    @Column(name="movie_id")
+    private Long movieId;
 
     private String name;
 
@@ -53,6 +55,6 @@ public class Movie implements IDomain {
 
     @Override
     public Long getId() {
-        return this.movie_id;
+        return this.movieId;
     }
 }
